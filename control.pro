@@ -6,9 +6,9 @@ CONFIG -= qt
 
 SOURCES += \
     main.cpp \
-    scr/lidarscanner.cpp \
-    scr/fuzzycontrol.cpp \
-    scr/location.cpp
+    src/lidarscanner.cpp \
+    src/fuzzycontrol.cpp \
+    src/location.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gazebo
@@ -24,4 +24,7 @@ HEADERS += \
     inc/lidarscanner.h \
     inc/fuzzycontrol.h \
     inc/location.h
+
+DISTFILES += \
+    obstacleAvoidance.fll
 
