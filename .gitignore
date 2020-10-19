@@ -71,3 +71,12 @@ Thumbs.db
 *.dll
 *.exe
 
+#vs code folde 
+*.json
+.vscode/*
+
+#ignore pro files
+*.pro
+
+#ignore claus' files
+claus*
