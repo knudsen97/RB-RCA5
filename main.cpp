@@ -15,6 +15,7 @@ bool k = true;
 
 float speed1 = 0;
 float steer = 0;
+float test=1;
 
 void circleDetection(cv::Mat &img)
 {
