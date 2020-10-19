@@ -8,7 +8,7 @@
 #include "inc/lidarscanner.h"
 #include "inc/fuzzycontrol.h"
 #include "inc/location.h"
-
+///A
 
 static boost::mutex mutex;
 bool k = true;
