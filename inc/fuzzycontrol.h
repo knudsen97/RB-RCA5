@@ -2,7 +2,7 @@
 #define FUZZYCONTROL_H
 
 #include "fl/Headers.h"
-#include "inc/lidarscanner.h"
+#include "inc/lidar.h"
 
 class fuzzyControl
 {

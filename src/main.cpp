@@ -7,15 +7,16 @@
 #include <opencv2/opencv.hpp>
 
 #include "fl/Headers.h"
-#include "inc/lidarscanner.h"
+#include "inc/lidar.h"
 #include "inc/fuzzycontrol.h"
 #include "inc/location.h"
-
 
 static boost::mutex mutex;
 bool k = true;
 float speed = 0;
 float steer = 0;
+
+lidar lidarData;
 
 
 void circleDetection(cv::Mat &img)
@@ -98,17 +99,7 @@ void cameraCallback(ConstImageStampedPtr &msg) {
 }
 
 
-void lidarCallback(ConstLaserScanStampedPtr &msg) {
-//    lidarScanner A;
-//    std::cout << "range: " << A.lidarMin(msg).range <<std::endl;
-//    std::cout << "angle: " << A.lidarMin(msg).angle <<std::endl;
-    
-    
-    // fuzzyControl B;
-    // steer = B.setControl(msg).steer;
-    // speed = B.setControl(msg).speed;
-
-}
+void lidarCallback(ConstLaserScanStampedPtr &msg) { lidarData.lidarCallback(msg); }
 
 
 
