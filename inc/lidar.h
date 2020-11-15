@@ -24,8 +24,8 @@ public:
     //lidarData lidarMin(ConstLaserScanStampedPtr &msg);
 
 private:
-    std::array<float, 640> range;
-    std::array<float, 640> angle;
+    std::array<float, 200> range;
+    std::array<float, 200> angle;
 
 // struct lidarData{
 //     float range;
