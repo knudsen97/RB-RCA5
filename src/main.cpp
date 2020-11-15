@@ -10,14 +10,13 @@
 #include "inc/lidar.h"
 #include "inc/fuzzycontrol.h"
 #include "inc/location.h"
+#include "inc/pose.h"
 
 static boost::mutex mutex;
 bool k = true;
-float speed = 0;
-float steer = 0;
 
 lidar lidarData;
-
+pose robotPose;
 
 void circleDetection(cv::Mat &img)
 {
@@ -59,28 +58,7 @@ void statCallback(ConstWorldStatisticsPtr &_msg) {
 }
 
 
-void poseCallback(ConstPosesStampedPtr &_msg) {
-  // Dump the message contents to stdout.
-  //  std::cout << _msg->DebugString();
-
-//    for (int i = 0; i < _msg->pose_size(); i++) {
-//    if (_msg->pose(i).name() == "pioneer2dx") {
-//      std::cout << std::setprecision(2) << std::fixed << std::setw(6)
-//                << _msg->pose(i).position().x() << std::setw(6)
-//                << _msg->pose(i).position().y() << std::setw(6)
-//                << _msg->pose(i).position().z() << std::setw(6)
-//                << _msg->pose(i).orientation().w() << std::setw(6)
-//                << _msg->pose(i).orientation().x() << std::setw(6)
-//                << _msg->pose(i).orientation().y() << std::setw(6)
-//                << _msg->pose(i).orientation().z() << std::endl;
-//    }
-//  }
-
-    fuzzyControl B;
-    steer = B.setControl(_msg).steer;
-    speed = B.setControl(_msg).speed;
-}
-
+void poseCallback(ConstPosesStampedPtr &_msg) { robotPose.poseCallback(_msg); }
 
 void cameraCallback(ConstImageStampedPtr &msg) {
 
@@ -139,6 +117,13 @@ int main(int _argc, char **_argv) {
 
   const int key_esc = 27;
 
+  fuzzyControl robotControl;
+  //fuzzyControl::fuzzyData controlData;
+  //Insert goal point for fuzzy:
+  cv::Point goal(5, -3);
+  float speed = 0;
+  float steer = 0;
+
   // Loop
   while (true) {
     gazebo::common::Time::MSleep(10);
@@ -146,6 +131,11 @@ int main(int _argc, char **_argv) {
     mutex.lock();
     int key = cv::waitKey(1);
     mutex.unlock();
+
+
+    fuzzyControl::fuzzyData controlData = robotControl.setControl(robotPose, lidarData, goal);
+    speed = controlData.speed;
+    steer = controlData.steer;
 
     if (key == key_esc)
       break;
