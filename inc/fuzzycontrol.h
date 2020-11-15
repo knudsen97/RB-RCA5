@@ -3,21 +3,23 @@
 
 #include "fl/Headers.h"
 #include "inc/lidar.h"
+#include "inc/pose.h"
 
 class fuzzyControl
 {
 
 private:
+
+
+public:
     struct fuzzyData{
         float steer, speed;
     };
 
-public:
     fuzzyControl();
     ~fuzzyControl();
 
-    //fuzzyData setControl(ConstLaserScanStampedPtr &msg);
-    fuzzyData setControl(ConstPosesStampedPtr &_msg);
+    fuzzyData setControl(pose &robotPose, lidar &lidarData, cv::Point goal);
 
 };
 
