@@ -22,8 +22,8 @@ void lidar::lidarCallback(ConstLaserScanStampedPtr &msg)
     float minRange = range_max;
     for(int i = 0; i < nranges; i++)
     {
-        range[i] = float(msg->scan().ranges(i));
-        angle[i] = angle_min + i * angle_increment;    
+        data[lidar::range][i] = float(msg->scan().ranges(i));
+        data[lidar::angle][i] = angle_min + i * angle_increment; 
     }
 }
 

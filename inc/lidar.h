@@ -17,15 +17,19 @@ public:
 
     void lidarCallback(ConstLaserScanStampedPtr &msg);
 
-    float getRange(int i) {return range[i];}
-    float getAngle(int i) {return angle[i];}
+    std::array<float, 200> getData(int i) {return data[i];}
 
+    //float getRange(int i) {return range[i];}
+    //float getAngle(int i) {return angle[i];}
+
+    enum dataType {range, angle, minRange, minAngle};
     //void lidarMin(ConstLaserScanStampedPtr &msg);
     //lidarData lidarMin(ConstLaserScanStampedPtr &msg);
 
 private:
-    std::array<float, 200> range;
-    std::array<float, 200> angle;
+    std::array<std::array<float, 200>, 2> data;
+    // std::array<float, 200> range;
+    // std::array<float, 200> angle;
 
 // struct lidarData{
 //     float range;
