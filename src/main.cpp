@@ -2,19 +2,21 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <iostream>
+//#include <opencv2/core.hpp>
+
 #include <opencv2/opencv.hpp>
 
 #include "fl/Headers.h"
-#include "inc/lidarscanner.h"
+#include "inc/lidar.h"
 #include "inc/fuzzycontrol.h"
 #include "inc/location.h"
-
+#include "inc/pose.h"
 
 static boost::mutex mutex;
 bool k = true;
 
-float speed1 = 0;
-float steer = 0;
+lidar lidarData;
+pose robotPose;
 
 void circleDetection(cv::Mat &img)
 {
@@ -55,25 +57,8 @@ void statCallback(ConstWorldStatisticsPtr &_msg) {
   //  std::cout << std::flush;
 }
 
-void poseCallback(ConstPosesStampedPtr &_msg) {
-  // Dump the message contents to stdout.
-  //  std::cout << _msg->DebugString();
 
-  for (int i = 0; i < _msg->pose_size(); i++) {
-    if (_msg->pose(i).name() == "pioneer2dx") {
-
-      std::cout << std::setprecision(2) << std::fixed << std::setw(6)
-                << _msg->pose(i).position().x() << std::setw(6)
-                << _msg->pose(i).position().y() << std::setw(6)
-                << _msg->pose(i).position().z() << std::setw(6)
-                << _msg->pose(i).orientation().w() << std::setw(6)
-                << _msg->pose(i).orientation().x() << std::setw(6)
-                << _msg->pose(i).orientation().y() << std::setw(6)
-                << _msg->pose(i).orientation().z() << std::endl;
-    }
-  }
-}
-
+void poseCallback(ConstPosesStampedPtr &_msg) { robotPose.poseCallback(_msg); }
 
 void cameraCallback(ConstImageStampedPtr &msg) {
 
@@ -92,17 +77,8 @@ void cameraCallback(ConstImageStampedPtr &msg) {
 }
 
 
+void lidarCallback(ConstLaserScanStampedPtr &msg) { lidarData.lidarCallback(msg); }
 
-void lidarCallback(ConstLaserScanStampedPtr &msg) {
-//    lidarScanner A;
-//    std::cout << "range: " << A.lidarMin(msg).range <<std::endl;
-//    std::cout << "angle: " << A.lidarMin(msg).angle <<std::endl;
-    fuzzyControl B;
-    steer = B.setControl(msg).steer;
-    speed1 = B.setControl(msg).speed;
-    //speed1 = B.setControl(msg);
-
-}
 
 
 int main(int _argc, char **_argv) {
@@ -118,8 +94,8 @@ int main(int _argc, char **_argv) {
   gazebo::transport::SubscriberPtr statSubscriber =
       node->Subscribe("~/world_stats", statCallback);
 
-//  gazebo::transport::SubscriberPtr poseSubscriber =
-//      node->Subscribe("~/pose/info", poseCallback);
+  gazebo::transport::SubscriberPtr poseSubscriber =
+      node->Subscribe("~/pose/info", poseCallback);
 
   gazebo::transport::SubscriberPtr cameraSubscriber =
       node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
@@ -139,14 +115,14 @@ int main(int _argc, char **_argv) {
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-//  const int key_left = 81;
-//  const int key_up = 82;
-//  const int key_down = 84;
-//  const int key_right = 83;
   const int key_esc = 27;
 
+  fuzzyControl robotControl;
+  //fuzzyControl::fuzzyData controlData;
+  //Insert goal point for fuzzy:
+  cv::Point goal(5, -3);
   float speed = 0;
-  float dir = 0;
+  float steer = 0;
 
   // Loop
   while (true) {
@@ -156,45 +132,21 @@ int main(int _argc, char **_argv) {
     int key = cv::waitKey(1);
     mutex.unlock();
 
+
+    fuzzyControl::fuzzyData controlData = robotControl.setControl(robotPose, lidarData, goal);
+    speed = controlData.speed;
+    steer = controlData.steer;
+
     if (key == key_esc)
       break;
 
-    dir = steer;
-    speed = speed1;
-    std::cout << "speed: " << speed << "  dir: " << dir << std::endl;
-
-//    if((steer<0) && (dir >= -0.4f))
-//        dir -= 0.05;
-//    else if((steer>0) && (dir <= 0.4f))
-//        dir += 0.05;
-//    else
-//        dir *= 0.1;
-
-//    if(dir != 0)
-//        std::cout << "dir: " << dir << std::endl;
-//    if ((key == key_up) && (speed <= 1.2f))
-//      speed += 0.05;
-//    else if ((key == key_down) && (speed >= -1.2f))
-//      speed -= 0.05;
-//    else if ((key == key_right) && (dir <= 0.4f))
-//      dir += 0.05;
-//    else if ((key == key_left) && (dir >= -0.4f))
-//      dir -= 0.05;
-//    else {
-//       //slow down
-////            speed *= 0.1;
-////            dir *= 0.1;
-//    }
-
-
     // Generate a pose
-    ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
+    ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(steer));
 
     // Convert to a pose message
     gazebo::msgs::Pose msg;
     gazebo::msgs::Set(&msg, pose);
     movementPublisher->Publish(msg);
-
 
   }
 
