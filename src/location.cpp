@@ -1,4 +1,9 @@
+#include<iostream> 
+#include<chrono> 
+#include<random>
+
 #include "inc/location.h"
+
 #define PI 3.141592653589793
 
 
@@ -31,6 +36,12 @@ void location::update(float speed, float dir, int sec)
   std::cout << "theta: "  << this->theta  << std::endl;
   std::cout << "x: "      << this->x      << std::endl;
   std::cout << "y: "      << this->y      << std::endl;
+}
+
+void particleFilter(cv::Mat& map, ConstLaserScanStampedPtr &msg)
+{
+  if(map.channels() != 1)
+    cv::cvtColor(map, map, cv::COLOR_BGR2GRAY);
 }
 
 void location::plot(cv::Mat& map, float x, float y)

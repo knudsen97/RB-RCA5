@@ -1,8 +1,12 @@
+#include <gazebo/gazebo_client.hh>
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/transport/transport.hh>
 #include <cmath>
 #include <iostream>
 #include <array>
 #include <iomanip>
 #include <opencv2/opencv.hpp>
+
 
 #ifndef LOCATION_H
 #define LOCATION_H
@@ -18,6 +22,10 @@ public:
     void update(float speed, float intDir, int sec);
     /* update location of robot
      * sec is for debug and later implementation with time
+     */
+
+    void particleFilter(cv::Mat& map, ConstLaserScanStampedPtr &msg);
+    /* update location of robot
      */
 
     void plot(cv::Mat& map, float x, float y);
