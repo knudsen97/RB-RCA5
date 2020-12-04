@@ -1,22 +1,52 @@
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
-#include <iostream>
-//#include <opencv2/core.hpp>
-
 #include <opencv2/opencv.hpp>
+
+#include <iostream>
 
 #include "fl/Headers.h"
 #include "inc/lidar.h"
 #include "inc/fuzzycontrol.h"
 #include "inc/location.h"
 #include "inc/pose.h"
+#include "inc/RoadMap.h"
+
 
 static boost::mutex mutex;
 bool k = true;
 
 lidar lidarData;
 pose robotPose;
+
+void ROB()
+{
+    RoadMap map;
+    std::vector<cv::Point> goalPointsBig = 
+    {
+      cv::Point(10,7),
+      cv::Point(24,7),  
+      cv::Point(17,24),  
+      cv::Point(9,60),  
+      cv::Point(32,61),  
+      cv::Point(43,17),  
+      cv::Point(67,9),  
+      cv::Point(68,26),  
+      cv::Point(94,17),  
+      cv::Point(110,18),  
+      cv::Point(110,46),  
+      cv::Point(71,54),  
+      cv::Point(104,70),  
+      cv::Point(79,70),  
+      cv::Point(55,71)  
+    };
+    cv::Point startBig(65, 35);
+
+    map.loadMap("bigworld.png", "Map", 8);
+    map.generateNodes(1000, startBig, goalPointsBig);
+    map.generateRM();
+    map.explore();
+}
 
 void circleDetection(cv::Mat &img)
 {
@@ -120,11 +150,12 @@ int main(int _argc, char **_argv) {
   fuzzyControl robotControl;
   //fuzzyControl::fuzzyData controlData;
   //Insert goal point for fuzzy:
-  cv::Point goal(5, -3);
+  cv::Point goal(5, 3);
   float speed = 0;
   float steer = 0;
 
   // Loop
+  ROB();
   while (true) {
     gazebo::common::Time::MSleep(10);
 

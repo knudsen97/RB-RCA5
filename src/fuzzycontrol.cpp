@@ -22,8 +22,8 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
     std::array<float, 200> obstacleAngles = lidarData.getData(lidar::angle);
     
     //Now we find the range and angle to the closest object:
-    float minRange = obstacleRanges[0], minAngle = 0;
-    for(int i = 0; i < obstacleRanges.size() - 1; i++)
+    float minRange = obstacleRanges[49], minAngle = 0;
+    for(int i = 49; i < obstacleRanges.size() - 51; i++)
     {
         if(minRange > obstacleRanges[i])
         {
@@ -31,12 +31,14 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
             minAngle = obstacleAngles[i];
         }
     }
-
-        // if(obstacleRanges[i] < obstacleRanges[i+1])
-        // {
-        //     minRange = obstacleRanges[i];
-        //     minAngle = obstacleAngles[i];
-        // }
+    // for(int i = 0; i < obstacleRanges.size() - 1; i++)
+    // {
+    //     if(minRange > obstacleRanges[i])
+    //     {
+    //         minRange = obstacleRanges[i];
+    //         minAngle = obstacleAngles[i];
+    //     }
+    // }
 
     std::cout << "minRange: " << minRange << std::endl;
     std::cout << "minAngle: " << minAngle << std::endl;
@@ -57,9 +59,8 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
     // std::cout << "a_goal      : " << a_goal <<  std::endl;
     // std::cout << "sign        : " << sign << std::endl;
     // std::cout << "K           : " << K << std::endl;
-
     // std::cout << "Goal angle  : " << goalAngle << std::endl;
-    std::cout << "Goal dist   : " << goalDist << std::endl;
+    //std::cout << "Goal dist   : " << goalDist << std::endl;
     // std::cout << "orientation : " << orientation << std::endl;
 
     //Start fuzzy engine and read .fll file
@@ -85,13 +86,15 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
     engine->process();
 
     fuzzyData controlData;
-
-
-
     if (goalDist < GOAL_RADIUS)
     {
         controlData.speed = 0;
         controlData.steer = 0;
+    }
+    else if ((goalAngle < -0.3) || (goalAngle > 0.3))
+    {
+        controlData.speed = 0;
+        controlData.steer = steer->getValue();
     }
     else
     {
@@ -100,13 +103,14 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
     }
 
 
+    return controlData;
+}
+
     // if(goalDist < 1.0)
     // {
     //     controlData.speed = (goalAngle < 0.3 && goalAngle > -0.3) ? speed->getValue() : 0;
     //     controlData.steer = (goalAngle == 0) ? 0 : steer->getValue();
     // }
-    return controlData;
-}
 
 // fuzzyControl::fuzzyData fuzzyControl::setControl(ConstLaserScanStampedPtr &msg)
 // {
