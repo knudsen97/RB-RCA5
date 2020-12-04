@@ -28,7 +28,7 @@ private:
     void angleCal(double w, double x, double y, double z);
     std::array<double, 6> data;
     //std::mutex poseMutex;
-}
+};
 
 #endif
 
