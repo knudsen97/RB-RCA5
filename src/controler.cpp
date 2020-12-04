@@ -32,7 +32,7 @@ void controler::control(cv::Point2f goal, pose& currentPosition, std::array<floa
     
     //update error
     cv::Point2f pos(currentPosition.getPose(pose::x), currentPosition.getPose(pose::y));
-    float ang = relativeAngle(goal, pos, currentPosition.getPose(pose::thetaW)*PI);
+    float ang = relativeAngle(goal, pos, currentPosition.getPose(pose::thetaZ)*PI);
     this->angle.error = ang;
 
     float mag = magnitude(goal, pos);
