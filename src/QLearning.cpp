@@ -3,8 +3,7 @@
 QLearning::QLearning()
 {
     srand(time(NULL));
-    //rewardCount = rewards;
-    qTableIndex = 0; // this->rewardList.size();
+    qTableIndex = 0;
     rewardIndex = 0;
 };
 QLearning::~QLearning(){};
@@ -12,9 +11,8 @@ QLearning::~QLearning(){};
 
 QLearning::state QLearning::terminal(QLearning::state s)
 {
-    if(rewardCount == 0 || steps == 0 )//|| pixelColour(cv::Point(s.x, s.y)) == cv::Vec3b(0,0,0))
+    if(rewardCount == 0 || steps == 0 )
         return {s.x, s.y, false};
-        //return TERMINAL_STATE;
     else
         return s;   
 }
@@ -48,7 +46,6 @@ QLearning::action QLearning::nextAction(QLearning::state s)
         return action(rand()%4); //Perform random action
     else
     {
-        //float temp = qTable[s.x][s.y][0];
         float temp = qTableList[qTableIndex][s.x][s.y][0];
 
         for(int i = 0; i < 4; i++)
@@ -89,7 +86,6 @@ float QLearning::getReward(QLearning::action a, QLearning::state s)
                 score = this->enviromentTemp.at<uchar>(cv::Point(s.x, s.y));
                 this->enviromentTemp.at<uchar>(cv::Point(s.x, s.y)) = EMPTY;
                 rewardIndex = i;
-                //std::cout << std::bitset<8>(qTableIndex) << std::endl;
             }
         i++;
     }
@@ -136,8 +132,6 @@ void QLearning::resetVariables()
     this->rewardTableTemp = this->rewardTable;
     this->enviromentTemp = this->enviroment.clone();
     this->qTableIndex = 0;
-    // cv::imshow("okay...", this->enviroment); //Debugging
-    // cv::waitKey(0);
 
     QLearning::resetImage(); // reset BGR
 }
@@ -175,14 +169,6 @@ bool QLearning::loadMap(cv::Mat &map, std::string windowName)
 
     cv::imshow(windowName, img);
     cv::waitKey(0);
-    // cv::namedWindow("okay...", cv::WINDOW_NORMAL);
-    // cv::resizeWindow("okay...", 600, 600);
-
-    // cv::namedWindow("okay..", cv::WINDOW_NORMAL);
-    // cv::resizeWindow("okay..", 600, 600);
-
-    // cv::namedWindow("okay.", cv::WINDOW_NORMAL);
-    // cv::resizeWindow("okay.", 600, 600);
 
     this->width = img.cols;
     this->height = img.rows;
@@ -255,11 +241,9 @@ void QLearning::training(int trainingAttempts)
         float reward = getReward(a, next);
 
         action aNext = nextAction(next);
-        //qTable[agent.x][agent.y][a] += alpha * (reward + gamma * qTable[next.x][next.y][aNext] - qTable[agent.x][agent.y][a]);
         qTableList[qTableIndex][agent.x][agent.y][a] += alpha * (reward + gamma * qTableList[qTableIndex][next.x][next.y][aNext] - qTableList[qTableIndex][agent.x][agent.y][a]);
         this->qTableIndex |= 1 << rewardIndex; //Markov property to see which goal we have taken.
 
-        //sstd::cout << std::bitset<8>(qTableIndex) << std::endl;
         if(this->enviromentTemp.at<uchar>(cv::Point(next.x, next.y)) != 0)
             agent = next;
 
@@ -274,13 +258,12 @@ void QLearning::training(int trainingAttempts)
 
         if(!agent.validPos)
         {
-            if(epsilon > 0.05f) //0.01
+            if(epsilon > 0.05f) 
                 epsilon -= 0.0005;
-            if(alpha > 0.01f) //0.01
+            if(alpha > 0.01f) 
                 alpha -= 0.0005;
             trainingAttempts--;
     
-            //printTable();
             QLearning::plotDebug(a);
 
             QLearning::resetVariables();
@@ -288,11 +271,8 @@ void QLearning::training(int trainingAttempts)
             std::cout << count << '\n';
             test_data << count << '\n';
             count = 0;
-
-            //cv::waitKey(0);	
         }
     }
-    //test_data.close();
 }
 
 void QLearning::plotDebug(int act)

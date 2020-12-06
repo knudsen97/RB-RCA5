@@ -10,10 +10,6 @@ float vision::distanceCalculation(float objH)
     float focalLength = 0.5544;// mm
     float sensorH =  0.51703344; //mm
     float imageHeight = 240; //mm
-
-    //The formula below is:
-    /*  distanceToObject [mm] = ( focalLength[mm] * realHeightOfObject[mm] * imageHeight[pixels] ) /  ( objectHeight[pixels] * sensorHeight[mm] )  */
-
     float dist = (focalLength*realDiameter*imageHeight)/(2*objH * sensorH);
 
     return dist;
@@ -23,7 +19,6 @@ void vision::circleDetection(cv::Mat img)
 {
     cv::Mat gray;
     cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-    //medianBlur(gray, gray, 5);
     GaussianBlur( gray, gray, cv::Size(9, 9), 2, 2 );
     std::vector<cv::Vec3f> circles;
     HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1,

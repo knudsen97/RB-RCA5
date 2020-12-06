@@ -9,7 +9,6 @@ pose::pose()
 
 void pose::poseCallback(ConstPosesStampedPtr &_msg)
 {
-//    poseMutex.lock();
     for (int i = 0; i < _msg->pose_size(); i++) 
     {
         if (_msg->pose(i).name() == "pioneer2dx") 
@@ -26,14 +25,11 @@ void pose::poseCallback(ConstPosesStampedPtr &_msg)
             );
         }
     }
-//    poseMutex.unlock();
 }
 
 double pose::getPose(int i)
 {
-//    poseMutex.lock();
     return data[i];
-//    poseMutex.unlock();
 }
 
 void pose::angleCal(double w, double x, double y, double z){

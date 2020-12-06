@@ -8,7 +8,6 @@ double relativeAngle(cv::Point2f a, cv::Point2f b, double orientation)
     float goalAngle = goal - orientation;
     float K = -sign * PI * 2;
     double returnVal = (abs(K+goalAngle) < abs(goalAngle)) ? (K+goalAngle) : (goalAngle);
-    //std::cout << "goalAngle: " << goalAngle << "\tK+goalAngle" << K+goalAngle << '\n';
     return returnVal;
 }
 
