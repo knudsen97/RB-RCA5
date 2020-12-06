@@ -67,8 +67,6 @@ private:
 
     state agent;
     cv::Point start;
-    // const char rewards = 1;
-    // char rewardCount;
 
     //Private methods:
     bool validPixel(state s);

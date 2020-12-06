@@ -54,7 +54,7 @@ location::pose location::update(float speed, float dir, float sec)
   float cordlength = 2*(speed/dir)*sin(this->theta/2);
   if(dir > 0.001 && speed > 0.001)
   {
-    this->x += sin((this->theta)/2)*cordlength*time; // x this->x += cos(2*(speed/dir)*sin(this->theta/2))*time
+    this->x += sin((this->theta)/2)*cordlength*time; // x
     this->y += cos(this->theta/2)*cordlength*time; // y
   }
   else
@@ -64,13 +64,6 @@ location::pose location::update(float speed, float dir, float sec)
   }
 
   objectPose = pose{x, y, theta};
-
-  //temporary debug input
-  if(sec == 'r')
-  {
-    this->x = 0;
-    this->y = 0;
-  }
   return pose{x, y, theta};
 }
 
@@ -149,7 +142,7 @@ void location::particleFilter(cv::Mat& _map, std::vector<location::pose>& input,
   /***analyse lidar data***/
   int width = 400;  int height = 400;
   float pixlePerUnit = 200 / maxrange;
-  cv::Mat particleVision;//(height, width, CV_8UC1);
+  cv::Mat particleVision;
   cv::Mat robotVision(height, width, CV_8UC1);
   robotVision.setTo(255);
 
@@ -180,7 +173,6 @@ void location::particleFilter(cv::Mat& _map, std::vector<location::pose>& input,
     // filter or weight particle probability.
   }
   cv::imshow("Map", map);
-  //location::plot(map, input, "Particles");
 }
 
 void location::plot(cv::Mat& map, float x, float y, std::string name)

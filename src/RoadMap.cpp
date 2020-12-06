@@ -181,13 +181,12 @@ std::vector<RoadMap::path> RoadMap::weightedPath(cv::Point start)
     path temp;
     temp.distance = 0;
     std::vector<RoadMap::path> weightedPaths;
-    for( int i= 0; i < pathHolder.size(); i++)  // Kan optimeres ved ikke at kører hele listen igennem.
+    for( int i= 0; i < pathHolder.size(); i++)
     {
         if(start == pathHolder[i].start && pathHolder[i].visited == false) //1st iteration start == startCOnnection
         {
             pathHolder[i].visited = true;
             weightedPaths.push_back(pathHolder[i]);
-            //cv::line(img, pathHolder[i].start, pathHolder[i].end, cv::Scalar(0,255,0), lineWidth);
         }
         else if(start == pathHolder[i].end && pathHolder[i].visited == false)
         {
@@ -199,7 +198,6 @@ std::vector<RoadMap::path> RoadMap::weightedPath(cv::Point start)
             };
             pathHolder[i].visited = true;
             weightedPaths.push_back(temp);
-            //cv::line(img, temp.start, temp.end, cv::Scalar(0,255,0), lineWidth);
         }
     }
 
@@ -217,7 +215,6 @@ std::vector<RoadMap::path> RoadMap::weightedPath(cv::Point start)
                 };
                 weightedPaths.push_back(temp);
                 pathHolder[pathIndex].visited = true;
-                //cv::line(img, temp.start, temp.end, cv::Scalar(0,255,0), lineWidth);
             }
             if(pathHolder[pathIndex].end == weightedPaths[i].start && pathHolder[pathIndex].visited == false) // Towards the node
             {
@@ -232,8 +229,6 @@ std::vector<RoadMap::path> RoadMap::weightedPath(cv::Point start)
                 pathHolder[pathIndex].start = temp.start;
                 pathHolder[pathIndex].end = temp.end; 
                 pathHolder[pathIndex].visited = true;
-
-                //cv::line(img, temp.start, temp.end, cv::Scalar(0,255,0), lineWidth);
             }
         }
     }
