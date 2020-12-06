@@ -64,7 +64,7 @@ fuzzyControl::fuzzyData fuzzyControl::setControl(pose &robotPose, lidar &lidarDa
     // std::cout << "orientation : " << orientation << std::endl;
 
     //Start fuzzy engine and read .fll file
-    Engine* engine = FllImporter().fromFile("obstacleAvoidance4.fll");
+    Engine* engine = FllImporter().fromFile("obstacleAvoidance.fll");
 
     std::string status;
     if (not engine->isReady(&status))
