@@ -1,84 +1,12 @@
-#include <gazebo/gazebo_client.hh>
-#include <gazebo/msgs/msgs.hh>
-#include <gazebo/transport/transport.hh>
-#include <opencv2/opencv.hpp>
-
-#include <iostream>
-
-#include "fl/Headers.h"
-#include "inc/lidar.h"
-#include "inc/fuzzycontrol.h"
-#include "inc/location.h"
-#include "inc/pose.h"
-#include "inc/RoadMap.h"
-
+#include "inc/driver.h"
 
 static boost::mutex mutex;
 bool k = true;
 
 lidar lidarData;
 pose robotPose;
-
-void ROB()
-{
-    RoadMap map;
-    std::vector<cv::Point> goalPointsBig = 
-    {
-      cv::Point(10,7),
-      cv::Point(24,7),  
-      cv::Point(17,24),  
-      cv::Point(9,60),  
-      cv::Point(32,61),  
-      cv::Point(43,17),  
-      cv::Point(67,9),  
-      cv::Point(68,26),  
-      cv::Point(94,17),  
-      cv::Point(110,18),  
-      cv::Point(110,46),  
-      cv::Point(71,54),  
-      cv::Point(104,70),  
-      cv::Point(79,70),  
-      cv::Point(55,71)  
-    };
-    cv::Point startBig(65, 35);
-
-    map.loadMap("bigworld.png", "Map", 8);
-    map.generateNodes(1000, startBig, goalPointsBig);
-    map.generateRM();
-    map.explore();
-}
-
-void circleDetection(cv::Mat &img)
-{
-    cv::Mat gray;
-    cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-    //medianBlur(gray, gray, 5);
-    GaussianBlur( gray, gray, cv::Size(9, 9), 2, 2 );
-    std::vector<cv::Vec3f> circles;
-    HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 2,
-                 gray.rows/2,  // change this value to detect circles with different distances to each other
-                 10,           //canny edge threshold
-                 100,
-                 0, 200);      // change the last two parameters
-                               // (min_radius & max_radius) to detect larger circles
-    cv::Vec3i c;
-    cv::Point center;
-    for( size_t i = 0; i < circles.size(); i++ )
-    {
-        c = circles[i];
-        center = cv::Point(c[0], c[1]);
-        // circle center
-        circle( img, center, 1, cv::Scalar(0,100,100), 3, cv::LINE_AA);
-        // circle outline
-        int radius = c[2];
-        circle( img, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
-//        if(center.x)
-//        {
-//            std::cout << "circle detected, radius: " << radius << std::endl;
-//        }
-    }
-}
-
+camera cam;
+vision vis;
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
   (void)_msg;
@@ -87,25 +15,9 @@ void statCallback(ConstWorldStatisticsPtr &_msg) {
   //  std::cout << std::flush;
 }
 
-
 void poseCallback(ConstPosesStampedPtr &_msg) { robotPose.poseCallback(_msg); }
 
-void cameraCallback(ConstImageStampedPtr &msg) {
-
-  std::size_t width = msg->image().width();
-  std::size_t height = msg->image().height();
-  const char *data = msg->image().data().c_str();
-  cv::Mat im(int(height), int(width), CV_8UC3, const_cast<char *>(data));
-
-  im = im.clone();
-  cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
-
-  mutex.lock();
-  circleDetection(im);
-  cv::imshow("camera", im);
-  mutex.unlock();
-}
-
+void cameraCallback(ConstImageStampedPtr &msg) { cam.cameraCallback(msg); }
 
 void lidarCallback(ConstLaserScanStampedPtr &msg) { lidarData.lidarCallback(msg); }
 
@@ -145,17 +57,21 @@ int main(int _argc, char **_argv) {
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-  const int key_esc = 27;
 
+  //Uncomment according to what to test:
+  //pathFinder(); //Pathfinding
+  //qLearning(); //QLearning
+
+
+  const int key_esc = 27;
   fuzzyControl robotControl;
-  //fuzzyControl::fuzzyData controlData;
+  
   //Insert goal point for fuzzy:
   cv::Point goal(5, 3);
   float speed = 0;
   float steer = 0;
 
-  // Loop
-  ROB();
+  // Fuzzy loop
   while (true) {
     gazebo::common::Time::MSleep(10);
 
